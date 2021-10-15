@@ -17,8 +17,19 @@
    number to prevent conflicts with others in the class. */
 
 #define SERV_UDP_PORT 7892
+struct server_Header{
+   unsigned short count;
+   unsigned short request_ID;
+   unsigned short last;
+   unsigned short sequence_num;
+} Header;
 
 void interpret_client_packet(char *buffer, unsigned short *id, unsigned short *count);
+int generate_packet(struct server_Header, int* payload,char *buffer, unsigned short *count,unsigned short request_id);
+
+
+
+int payload[25];
 
 int main(void) {
 
@@ -40,6 +51,11 @@ int main(void) {
    char packet_received[50];
    unsigned short request_id;
    unsigned short count;
+
+   int total_packets;
+   int total_bytes;
+   char buffer[200];
+   int payload_len;
 
    /* open a socket */
 
@@ -80,30 +96,87 @@ int main(void) {
                      (struct sockaddr *) &client_addr, &client_addr_len);
       /*printf("Received Sentence is: %s\n     with length %d\n\n",
                          sentence, bytes_recd);*/
-      printf("%02X:%02X:%02X:%02X", packet_received[0], packet_received[1], packet_received[2], packet_received[3]);
       interpret_client_packet(packet_received, &request_id, &count);
-         printf("id is :%hu count is :%hu\n",request_id,count);
+      printf("id is :%hu count is :%hu\n",request_id,count);
+
       
 
       /* prepare the message to send */
+      int sequence_num = 0;
+      while(count!=0){
+         sequence_num++;
+         Header.sequence_num = sequence_num;
+         payload_len=generate_packet(Header, payload,buffer,&count, request_id);
+         
+         total_packets++;
 
-      msg_len = bytes_recd;
-      for (i=0; i<msg_len; i++)
-         modifiedSentence[i] = toupper (sentence[i]);
-
-      /* send message */
- 
-      bytes_sent = sendto(sock_server, modifiedSentence, msg_len, 0,
+         /* send message */
+         //printf("%d\n",payload_len);
+         bytes_sent = sendto(sock_server, buffer, payload_len, 0,
+                  (struct sockaddr*) &client_addr, client_addr_len);
+         //printf("%02X\n", buffer[7]);
+         total_bytes += bytes_sent;
+      }
+      /*bytes_sent = sendto(sock_server, modifiedSentence, msg_len, 0,
                (struct sockaddr*) &client_addr, client_addr_len);
+               */
    }
 }
 
 
 void interpret_client_packet(char *buffer, unsigned short *id, unsigned short *count){
    unsigned short temp;
-   memcpy(&temp,buffer,2); //extract bytes from buffer
+   memcpy(&temp,buffer,2); //Extract request id
    *id=ntohs(temp); //write temp in ntohs to id
-   memcpy(&temp,buffer+2,2);
+   memcpy(&temp,buffer+2,2);//extract count
    *count=ntohs(temp);
 }
 
+
+/*
+Generate random integer sequence put 25 at a time in payload
+send the payload
+iterate until temp=0
+*/
+int generate_packet(struct server_Header Header, int *Payload, char *buffer,unsigned short *count, unsigned short request_id){
+   int payload_len;
+   
+   Header.request_ID = request_id;
+   
+   if((*count-25)>=0){
+      if(*count-25==0){
+         Header.last=1;
+      }else{
+         Header.last = 0;
+      }
+      Header.count = 25;
+      *count-=25;
+      for(int i=0;i<25;i++){
+         Payload[i]=htonl(rand()%120);  
+      }
+      payload_len=25*sizeof(int);
+
+   } else{
+      Header.last = 1;
+      Header.count = *count;
+      //payload now has 25
+      for(int i=0; i<(*count);i++){
+         Payload[i]=htonl(rand()%120);      
+      }
+   payload_len=(*count)*sizeof(int);
+   *count=0;
+   }
+
+   int mem_temp;
+   mem_temp = htons(Header.request_ID);
+   memcpy(buffer,&mem_temp,2);
+   mem_temp = htons(Header.sequence_num);
+   memcpy(buffer+2,&mem_temp,2);
+   mem_temp = htons(Header.last);
+   memcpy(buffer+4,&mem_temp,2);
+   mem_temp = htons(Header.count);
+   memcpy(buffer+6,&mem_temp,2);
+   memcpy(buffer+8,Payload,payload_len+8);  
+   return payload_len+8;
+         
+}

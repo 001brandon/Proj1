@@ -12,7 +12,7 @@ udpclient: udpclient.c;
 	${CC} udpclient.c -g -o udpclient
 
 udpserver: udpserver.c;
-	${CC} udpserver.c -o udpserver
+	${CC} udpserver.c -g -o udpserver
 
 clean:
 	rm tcpclient tcpserver udpclient udpserver

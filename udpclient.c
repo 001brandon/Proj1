@@ -17,6 +17,7 @@ struct client_Packet{
 } Packet;
 
 void htonPacket(struct client_Packet,char *buffer);
+void interpret_server_packet(char *modifiedSentence, int bytes_recd, int *last, unsigned short* temp_sequence);
 
 int main(void) {
 
@@ -137,14 +138,35 @@ int main(void) {
                (struct sockaddr *) &server_addr, sizeof (server_addr));
 
       printf("%02X:%02X:%02X:%02X", buffer[0], buffer[1], buffer[2], buffer[3]);
-      /* get response from server */
-   
-      printf("Waiting for response from server...\n");
-      bytes_recd = recvfrom(sock_client, modifiedSentence, STRING_SIZE, 0,
-                  (struct sockaddr *) 0, (int *) 0);
-      printf("\nThe response from server is:\n");
-      printf("%s\n\n", modifiedSentence);
+           /* get response from server */
 
+
+      int last = 0;
+      unsigned short sequence_sum = 0;
+      unsigned short temp_sequence;
+      int total_packets = 0;
+      int total_bytes = 0;
+      printf("Waiting for response from server...\n");
+      while (!last) {
+         total_packets++;
+         unsigned short request_id;
+         
+         bytes_recd = recvfrom(sock_client, modifiedSentence, STRING_SIZE, 0,
+                     (struct sockaddr *) 0, (int *) 0);
+         unsigned short temp;
+         memcpy(&temp,modifiedSentence,2);
+         request_id = ntohs(temp);
+         if(request_id==Packet.request_ID){
+            total_bytes += bytes_recd;
+            interpret_server_packet(modifiedSentence, bytes_recd, &last, &temp_sequence); /* gets values from one packet */
+            sequence_sum += temp_sequence;
+         } else {
+            last = 1;
+         }
+         
+      }
+      printf("Total bytes = %d, Sequence_sum = %hu, Packets = %d\n",total_bytes, sequence_sum, total_packets);
+      
       char loop_response[10];
       printf("Send another request? Enter y/n\n");
       scanf("%s", loop_response);
@@ -163,6 +185,14 @@ int main(void) {
    /* close the socket */
 
    close (sock_client);
+}
+
+void interpret_server_packet(char *modifiedSentence, int bytes_recd, int *last, unsigned short *temp_sequence){
+   unsigned short temp;
+   memcpy(&temp,modifiedSentence+4,2);
+   *last = ntohs(temp);
+   memcpy(&temp,modifiedSentence+2,2);
+   *temp_sequence = ntohs(temp);
 }
 
 
