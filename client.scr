@@ -1,0 +1,116 @@
+Script started on 2021-10-18 12:30:24-0400
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ls-l
+ls-l: command not found
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ls -l
+total 68
+-rwxr-xr-x 1 brandon brandon   195 Oct 18 12:21 [0m[01;32mMakefile[0m
+-rwxr-xr-x 1 brandon brandon 18896 Oct 18 12:29 [01;32mudpclient[0m
+-rw-r--r-- 1 brandon brandon  7205 Oct 18 12:29 udpclient.c
+-rwxr-xr-x 1 brandon brandon 18760 Oct 18 12:29 [01;32mudpserver[0m
+-rw-r--r-- 1 brandon brandon  6134 Oct 18 12:03 udpserver.c
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpclient
+Enter hostname of server: localhost
+Enter port number for server: 7892
+Enter number of requested integers:
+25
+Waiting for response from server...
+Total bytes = 108, Sequence_sum = 1, Packets = 1, Checksum = 1375
+Send another request? Enter y/n
+y
+Enter number of requested integers:
+0
+Enter number between 1 and 65,535:
+y 2500
+Waiting for response from server...
+Total bytes = 10800, Sequence_sum = 5050, Packets = 100, Checksum = 147290
+Send another request? Enter y/n
+107   y
+Enter number of requested integers:
+100 7
+Waiting for response from server...
+Total bytes = 468, Sequence_sum = 15, Packets = 5, Checksum = 6110
+Send another request? Enter y/n
+y n
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpclient
+Enter hostname of server: localhost
+Enter port number for server: 789
+Enter number of requested integers:
+^C
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpclient
+Enter hostname of server: localhost
+Enter port number for server: 7892
+Enter number of requested integers:
+967   5000    8000
+Waiting for response from server...
+Total bytes = 34560, Sequence_sum = 51360, Packets = 320, Checksum = 472243
+Send another request? Enter y/n
+y
+Enter number of requested integers:
+65  2
+Waiting for response from server...
+Total bytes = 16, Sequence_sum = 1, Packets = 1, Checksum = 88
+Send another request? Enter y/n
+y
+Enter number of requested integers:
+65536
+Enter number between 1 and 65,535:
+65535
+Waiting for response from server...
+Total bytes = 283116, Sequence_sum = 30881, Packets = 2622, Checksum = 3888568
+Send another request? Enter y/n
+n
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ exit
+exit
+
+Script done on 2021-10-18 12:33:49-0400
+er.c
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpclient
+Enter hostname of server: localhost
+Enter port number for server: 7892
+Enter number of requested integers:
+25
+Waiting for response from server...
+Total bytes = 108, Sequence_sum = 1, Packets = 1, Checksum = 1375
+Send another request? Enter y/n
+y
+Enter number of requested integers:
+0
+Enter number between 1 and 65,535:
+y 2500
+Waiting for response from server...
+Total bytes = 10800, Sequence_sum = 5050, Packets = 100, Checksum = 147290
+Send another request? Enter y/n
+107   y
+Enter number of requested integers:
+100 7
+Waiting for response from server...
+Total bytes = 468, Sequence_sum = 15, Packets = 5, Checksum = 6110
+Send another request? Enter y/n
+y n
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpclient
+Enter hostname of server: localhost
+Enter port number for server: 789
+Enter number of requested integers:
+^C
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpclient
+Enter hostname of server: localhost
+Enter port number for server: 7892
+Enter number of requested integers:
+967   5000    8000
+Waiting for response from server...
+Total bytes = 34560, Sequence_sum = 51360, Packets = 320, Checksum = 472243
+Send another request? Enter y/n
+y
+Enter number of requested integers:
+65  2
+Waiting for response from server...
+Total bytes = 16, Sequence_sum = 1, Packets = 1, Checksum = 88
+Send another request? Enter y/n
+y
+Enter number of requested integers:
+65536
+Enter number between 1 and 65,535:
+65535
+Waiting for response from server...
+Total bytes = 283116, Sequence_sum = 30881, Packets = 2622, Checksum = 3888568
+Send another request? 

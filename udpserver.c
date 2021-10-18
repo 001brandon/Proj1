@@ -25,7 +25,7 @@ struct server_Header{
 } Header;
 
 void interpret_client_packet(char *buffer, unsigned short *id, unsigned short *count);
-int generate_packet(struct server_Header, int* payload,char *buffer, unsigned short *count,unsigned short request_id);
+int generate_packet(struct server_Header, int* payload,char *buffer, unsigned short *count,unsigned short request_id, unsigned long *checksum);
 
 
 
@@ -52,8 +52,6 @@ int main(void) {
    unsigned short request_id;
    unsigned short count;
 
-   int total_packets;
-   int total_bytes;
    char buffer[200];
    int payload_len;
 
@@ -97,16 +95,21 @@ int main(void) {
       /*printf("Received Sentence is: %s\n     with length %d\n\n",
                          sentence, bytes_recd);*/
       interpret_client_packet(packet_received, &request_id, &count);
-      printf("id is :%hu count is :%hu\n",request_id,count);
+      //printf("id is :%hu count is :%hu\n",request_id,count);
 
       
 
       /* prepare the message to send */
+      int total_packets = 0;
+      int total_bytes = 0;
       int sequence_num = 0;
+      int sequence_sum = 0;
+      unsigned long checksum = 0;
       while(count!=0){
          sequence_num++;
+         sequence_sum += sequence_num;
          Header.sequence_num = sequence_num;
-         payload_len=generate_packet(Header, payload,buffer,&count, request_id);
+         payload_len=generate_packet(Header, payload,buffer,&count, request_id, &checksum);
          
          total_packets++;
 
@@ -117,6 +120,8 @@ int main(void) {
          //printf("%02X\n", buffer[7]);
          total_bytes += bytes_sent;
       }
+      printf("Total bytes = %d, Sequence_sum = %hu, Packets = %d, Checksum = %lu\n",total_bytes, sequence_sum, total_packets, checksum);
+
       /*bytes_sent = sendto(sock_server, modifiedSentence, msg_len, 0,
                (struct sockaddr*) &client_addr, client_addr_len);
                */
@@ -138,7 +143,7 @@ Generate random integer sequence put 25 at a time in payload
 send the payload
 iterate until temp=0
 */
-int generate_packet(struct server_Header Header, int *Payload, char *buffer,unsigned short *count, unsigned short request_id){
+int generate_packet(struct server_Header Header, int *Payload, char *buffer,unsigned short *count, unsigned short request_id, unsigned long *checksum){
    int payload_len;
    
    Header.request_ID = request_id;
@@ -152,7 +157,8 @@ int generate_packet(struct server_Header Header, int *Payload, char *buffer,unsi
       Header.count = 25;
       *count-=25;
       for(int i=0;i<25;i++){
-         Payload[i]=htonl(rand()%120);  
+         Payload[i]=htonl(rand()%120);
+         *checksum += ntohl(Payload[i]);   
       }
       payload_len=25*sizeof(int);
 
@@ -161,7 +167,8 @@ int generate_packet(struct server_Header Header, int *Payload, char *buffer,unsi
       Header.count = *count;
       //payload now has 25
       for(int i=0; i<(*count);i++){
-         Payload[i]=htonl(rand()%120);      
+         Payload[i]=htonl(rand()%120);
+         *checksum += ntohl(Payload[i]);   
       }
    payload_len=(*count)*sizeof(int);
    *count=0;

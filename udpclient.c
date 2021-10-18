@@ -17,7 +17,7 @@ struct client_Packet{
 } Packet;
 
 void htonPacket(struct client_Packet,char *buffer);
-void interpret_server_packet(char *modifiedSentence, int bytes_recd, int *last, unsigned short* temp_sequence);
+void interpret_server_packet(char *packet_received, int bytes_recd, int *last, unsigned short *sequence_sum, unsigned long *checksum);
 
 int main(void) {
 
@@ -35,7 +35,7 @@ int main(void) {
    unsigned short server_port;  /* Port number used by server (remote port) */
 
    char sentence[STRING_SIZE];  /* send message */
-   char modifiedSentence[STRING_SIZE]; /* receive message */
+   char packet_received[STRING_SIZE]; /* receive message */
    unsigned int msg_len;  /* length of message */
    int bytes_sent, bytes_recd; /* number of bytes sent or received */
 
@@ -93,18 +93,18 @@ int main(void) {
    /* initialize server address information */
 
    printf("Enter hostname of server: ");
-   printf("Fix for main project to user input: Local host\n");
-   strcpy(server_hostname,"localhost");
-   //scanf("%s", server_hostname);
+   //printf("Fix for main project to user input: Local host\n");
+   //strcpy(server_hostname,"localhost");
+   scanf("%s", server_hostname);
    if ((server_hp = gethostbyname(server_hostname)) == NULL) {
       perror("Client: invalid server hostname\n");
       close(sock_client);
       exit(1);
    }
    printf("Enter port number for server: ");
-    printf("Fix for main project to user input: 7892\n");
-   //scanf("%hu", &server_port);
-   server_port=7892;
+   //printf("Fix for main project to user input: 7892\n");
+   scanf("%hu", &server_port);
+   //server_port=7892;
 
    /* Clear server address structure and initialize with server address */
    memset(&server_addr, 0, sizeof(server_addr));
@@ -118,54 +118,48 @@ int main(void) {
    Packet.request_ID=1;
    while(!done) {
 
-      /*printf("Please input a sentence:\n");
-      scanf("%s", sentence);
-      msg_len = strlen(sentence) + 1;*/
-
       printf("Enter number of requested integers:\n");
       scanf("%d", &temp_count);
 
-      while (temp_count < 0 || temp_count > 65535) {
+      while (temp_count < 1 || temp_count > 65535) {
          printf("Enter number between 1 and 65,535:\n");
          scanf("%d", &temp_count); //temp request is here so overflow does not occur
       }
       Packet.count = temp_count;
-      printf("here is count --> %hu\n here is request_ID --> %hu\n", Packet.count,Packet.request_ID);
+
       /* send message */
       htonPacket(Packet,buffer);
 
       bytes_sent = sendto(sock_client, &buffer, 4, 0,
                (struct sockaddr *) &server_addr, sizeof (server_addr));
 
-      printf("%02X:%02X:%02X:%02X", buffer[0], buffer[1], buffer[2], buffer[3]);
            /* get response from server */
 
 
       int last = 0;
       unsigned short sequence_sum = 0;
-      unsigned short temp_sequence;
       int total_packets = 0;
       int total_bytes = 0;
+      unsigned long checksum = 0;
       printf("Waiting for response from server...\n");
       while (!last) {
          total_packets++;
          unsigned short request_id;
          
-         bytes_recd = recvfrom(sock_client, modifiedSentence, STRING_SIZE, 0,
+         bytes_recd = recvfrom(sock_client, packet_received, STRING_SIZE, 0,
                      (struct sockaddr *) 0, (int *) 0);
          unsigned short temp;
-         memcpy(&temp,modifiedSentence,2);
+         memcpy(&temp,packet_received,2);
          request_id = ntohs(temp);
          if(request_id==Packet.request_ID){
             total_bytes += bytes_recd;
-            interpret_server_packet(modifiedSentence, bytes_recd, &last, &temp_sequence); /* gets values from one packet */
-            sequence_sum += temp_sequence;
+            interpret_server_packet(packet_received, bytes_recd, &last, &sequence_sum, &checksum); /* gets values from one packet */
          } else {
             last = 1;
          }
          
       }
-      printf("Total bytes = %d, Sequence_sum = %hu, Packets = %d\n",total_bytes, sequence_sum, total_packets);
+      printf("Total bytes = %d, Sequence_sum = %hu, Packets = %d, Checksum = %lu\n",total_bytes, sequence_sum, total_packets, checksum);
       
       char loop_response[10];
       printf("Send another request? Enter y/n\n");
@@ -187,12 +181,19 @@ int main(void) {
    close (sock_client);
 }
 
-void interpret_server_packet(char *modifiedSentence, int bytes_recd, int *last, unsigned short *temp_sequence){
+void interpret_server_packet(char *packet_received, int bytes_recd, int *last, unsigned short *sequence_sum, unsigned long *checksum){
    unsigned short temp;
-   memcpy(&temp,modifiedSentence+4,2);
+   unsigned long temp_int;
+   memcpy(&temp,packet_received+4,2);
    *last = ntohs(temp);
-   memcpy(&temp,modifiedSentence+2,2);
-   *temp_sequence = ntohs(temp);
+   memcpy(&temp,packet_received+2,2);
+   *sequence_sum += ntohs(temp);
+   memcpy(&temp,packet_received+6,2);
+   temp=ntohs(temp);  //temp is the count
+   for(int i=0;i<temp;i++){
+      memcpy(&temp_int,packet_received+8+4*i,4);
+      *checksum += ntohl(temp_int);
+   }
 }
 
 

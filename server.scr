@@ -1,0 +1,39 @@
+Script started on 2021-10-18 12:29:49-0400
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ls -l
+total 68
+-rwxr-xr-x 1 brandon brandon   195 Oct 18 12:21 [0m[01;32mMakefile[0m
+-rwxr-xr-x 1 brandon brandon 18896 Oct 18 12:29 [01;32mudpclient[0m
+-rw-r--r-- 1 brandon brandon  7205 Oct 18 12:29 udpclient.c
+-rwxr-xr-x 1 brandon brandon 18760 Oct 18 12:26 [01;32mudpserver[0m
+-rw-r--r-- 1 brandon brandon  6134 Oct 18 12:03 udpserver.c
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ make clean
+rm udpclient udpserver
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ s[Kls -l
+total 16
+-rwxr-xr-x 1 brandon brandon  195 Oct 18 12:21 [0m[01;32mMakefile[0m
+-rw-r--r-- 1 brandon brandon 7205 Oct 18 12:29 udpclient.c
+-rw-r--r-- 1 brandon brandon 6134 Oct 18 12:03 udpserver.c
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ make all
+/usr/bin/gcc udpclient.c -g -o udpclient
+/usr/bin/gcc udpserver.c -g -o udpserver
+ls]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ls -l
+total 68
+-rwxr-xr-x 1 brandon brandon   195 Oct 18 12:21 [0m[01;32mMakefile[0m
+-rwxr-xr-x 1 brandon brandon 18896 Oct 18 12:29 [01;32mudpclient[0m
+-rw-r--r-- 1 brandon brandon  7205 Oct 18 12:29 udpclient.c
+-rwxr-xr-x 1 brandon brandon 18760 Oct 18 12:29 [01;32mudpserver[0m
+-rw-r--r-- 1 brandon brandon  6134 Oct 18 12:03 udpserver.c
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ ./udpserver
+Waiting for incoming messages on port 7892
+
+Total bytes = 108, Sequence_sum = 1, Packets = 1, Checksum = 1375
+Total bytes = 10800, Sequence_sum = 5050, Packets = 100, Checksum = 147290
+Total bytes = 468, Sequence_sum = 15, Packets = 5, Checksum = 6110
+Total bytes = 34560, Sequence_sum = 51360, Packets = 320, Checksum = 472243
+Total bytes = 16, Sequence_sum = 1, Packets = 1, Checksum = 88
+Total bytes = 283116, Sequence_sum = 30881, Packets = 2622, Checksum = 3888568
+^C
+]0;brandon@LAPTOP-HRFEV0OI: ~/cisc450/Proj1[01;32mbrandon@LAPTOP-HRFEV0OI[00m:[01;34m~/cisc450/Proj1[00m$ exit
+exit
+
+Script done on 2021-10-18 12:33:52-0400

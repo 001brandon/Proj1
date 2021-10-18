@@ -1,2 +1,0 @@
-Make client request packet
-Put client in FSM
