@@ -9,6 +9,7 @@
 #include <sys/socket.h>     /* for socket, sendto, and recvfrom */
 #include <netinet/in.h>     /* for sockaddr_in */
 #include <unistd.h>         /* for close */
+#include <time.h>
 
 #define STRING_SIZE 1024
 
@@ -84,6 +85,7 @@ int main(void) {
                            server_port);
 
    client_addr_len = sizeof (client_addr);
+   srand ( time(NULL) ); //Time seed the random numbers
 
    for (;;) {
 
