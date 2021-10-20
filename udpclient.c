@@ -93,18 +93,16 @@ int main(void) {
    /* initialize server address information */
 
    printf("Enter hostname of server: ");
-   //printf("Fix for main project to user input: Local host\n");
-   //strcpy(server_hostname,"localhost");
    scanf("%s", server_hostname);
+
+   
    if ((server_hp = gethostbyname(server_hostname)) == NULL) {
       perror("Client: invalid server hostname\n");
       close(sock_client);
       exit(1);
    }
    printf("Enter port number for server: ");
-   //printf("Fix for main project to user input: 7892\n");
    scanf("%hu", &server_port);
-   //server_port=7892;
 
    /* Clear server address structure and initialize with server address */
    memset(&server_addr, 0, sizeof(server_addr));
@@ -142,6 +140,8 @@ int main(void) {
       int total_bytes = 0;
       unsigned long checksum = 0;
       printf("Waiting for response from server...\n");
+      /* Start recieving data from the server and interpret the packets */
+
       while (!last) {
          total_packets++;
          unsigned short request_id;
@@ -151,6 +151,8 @@ int main(void) {
          unsigned short temp;
          memcpy(&temp,packet_received,2);
          request_id = ntohs(temp);
+
+         /* If packets are the same interpret the packet */
          if(request_id==Packet.request_ID){
             total_bytes += bytes_recd;
             interpret_server_packet(packet_received, bytes_recd, &last, &sequence_sum, &checksum); /* gets values from one packet */
@@ -159,8 +161,10 @@ int main(void) {
          }
          
       }
+
       printf("Total bytes = %d, Sequence_sum = %hu, Packets = %d, Checksum = %lu\n",total_bytes, sequence_sum, total_packets, checksum);
       
+      /* Allow for another request to be made */
       char loop_response[10];
       printf("Send another request? Enter y/n\n");
       scanf("%s", loop_response);
@@ -175,32 +179,40 @@ int main(void) {
          done=1;
       }
    }
-
    /* close the socket */
 
    close (sock_client);
 }
-
+/*    Interpret_server_packet takes the data packet
+         sent by the server and breaks it into readable
+         data to be used by the client such as bytes recieved
+         whether or not it is the last packet, sequence num,
+         and checksum
+*/
 void interpret_server_packet(char *packet_received, int bytes_recd, int *last, unsigned short *sequence_sum, unsigned long *checksum){
    unsigned short temp;
    unsigned long temp_int;
-   memcpy(&temp,packet_received+4,2);
+   memcpy(&temp,packet_received+4,2); //Get last value
    *last = ntohs(temp);
-   memcpy(&temp,packet_received+2,2);
+   memcpy(&temp,packet_received+2,2); //Get Sequence Sum
    *sequence_sum += ntohs(temp);
-   memcpy(&temp,packet_received+6,2);
-   temp=ntohs(temp);  //temp is the count
+   memcpy(&temp,packet_received+6,2); //Get Count
+   temp=ntohs(temp);
    for(int i=0;i<temp;i++){
       memcpy(&temp_int,packet_received+8+4*i,4);
       *checksum += ntohl(temp_int);
    }
 }
 
-
+/*       htonPacket takes a packet struct and a buffer
+            and formats the header to be sent to the 
+            server for the client request of integers
+            and the request ID
+*/
 void htonPacket(struct client_Packet Packet,char *buffer){
    unsigned short temp;
    temp=htons(Packet.request_ID);
-   memcpy(buffer,&temp,2);
-   temp=htons(Packet.count);
-   memcpy(buffer+2,&temp,2);
+   memcpy(buffer,&temp,2);  //Copy in request ID
+   temp=htons(Packet.count); 
+   memcpy(buffer+2,&temp,2);//Copy in count
 }
